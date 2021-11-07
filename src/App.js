@@ -6,6 +6,7 @@ import ImageLinkForm from "./components/image-link-form/image-link-form";
 import FaceRecognition from "./components/face-recognition/face-recognition";
 import { Component } from "react";
 import Clarifai from "clarifai";
+import SignIn from "./components/sign-in/sign-in";
 
 const app = new Clarifai.App({
   apiKey: "93b146b761a14505bd801949ee49fa8f",
@@ -58,6 +59,7 @@ class App extends Component {
     return (
       <div className="App">
         <Navigation />
+        <SignIn/>
         <Logo />
         <Rank />
         <ImageLinkForm
