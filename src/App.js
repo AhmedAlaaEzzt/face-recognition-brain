@@ -13,17 +13,42 @@ const app = new Clarifai.App({
   apiKey: "93b146b761a14505bd801949ee49fa8f",
 });
 class App extends Component {
-  state = { input: "", imageUrl: "", boxs: [], route: "sigin",isSignedIn:false };
+  state = {
+    input: "",
+    imageUrl: "",
+    boxs: [],
+    route: "sigin",
+    isSignedIn: false,
+    user: {
+      id: "",
+      name: "",
+      email: "",
+      entries: 0,
+      joined: "",
+    },
+  };
+
+  loadUser = (data) => {
+    this.setState({
+      user: {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        entries: data.entries,
+        joined: data.join,
+      },
+    });
+  };
+
   onRouteChange = (route) => {
-    switch(route){
+    switch (route) {
       case "signin":
-        this.setState({isSignedIn:false})
+        this.setState({ isSignedIn: false });
         break;
       case "home":
-        this.setState({isSignedIn:true})
+        this.setState({ isSignedIn: true });
         break;
       default:
-
     }
     this.setState({ route: route });
   };
@@ -61,9 +86,18 @@ class App extends Component {
     */
     app.models
       .predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
-      .then((response) =>
+      .then((response) =>{
         this.displayFaceBoxs(this.calculateFaceLocations(response))
-      )
+        /**call image method to update image counter in the database */
+        fetch(`http://localhost:3000/image/${this.state.user.id}` ,{
+          method:'put',
+          headers: {'Content-Type': 'application/json'}
+        })
+          .then(response => response.json())
+          .then(userEntries => {
+            this.setState(prevState =>({user: Object.assign(prevState.user,{entries: userEntries})}))
+          })
+      })
       .catch((err) => console.log(err));
   };
   render() {
@@ -75,7 +109,7 @@ class App extends Component {
           return (
             <>
               <Logo />
-              <Rank />
+              <Rank user={this.state.user}/>
               <ImageLinkForm
                 onInputChange={this.onInputChange}
                 onButtonSubmit={this.onButtonSubmit}
@@ -84,16 +118,27 @@ class App extends Component {
             </>
           );
         case "register":
-          return <Register onRouteChange={this.onRouteChange} />;
+          return <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange} />;
         case "sigin":
         default:
-          return <SignIn onSignIn={this.onSignIn} isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />;
+          return (
+            <SignIn
+              onSignIn={this.onSignIn}
+              isSignedIn={isSignedIn}
+              onRouteChange={this.onRouteChange}
+              loadUser={this.loadUser}
+            />
+          );
       }
     };
 
     return (
       <div className="App">
-        <Navigation onSignOut={this.onSignOut} isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
+        <Navigation
+          onSignOut={this.onSignOut}
+          isSignedIn={isSignedIn}
+          onRouteChange={this.onRouteChange}
+        />
         {page()}
       </div>
     );
