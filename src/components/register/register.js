@@ -16,7 +16,7 @@ class Register extends Component {
     this.setState({name: event.target.value})
   }
   onSubmitSignIn =(event)=>{
-    fetch('http://localhost:3000/register',{
+    fetch('https://cryptic-river-90110.herokuapp.com/register',{
       method:'post',
       headers: {'Content-Type': 'application/json'},
       body:JSON.stringify({

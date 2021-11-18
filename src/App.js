@@ -91,7 +91,7 @@ class App extends Component {
       .then((response) =>{
         this.displayFaceBoxs(this.calculateFaceLocations(response))
         /**call image method to update image counter in the database */
-        fetch(`http://localhost:3000/image/${this.state.user.id}` ,{
+        fetch(`https://cryptic-river-90110.herokuapp.com/image/${this.state.user.id}` ,{
           method:'put',
           headers: {'Content-Type': 'application/json'}
         })
